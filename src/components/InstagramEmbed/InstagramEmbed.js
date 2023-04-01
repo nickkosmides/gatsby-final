@@ -1,18 +1,25 @@
-import React, { useState, useEffect } from "react"
+import React, { useEffect, useState } from "react";
 
-export const InstagramEmbed = ({ url }) => {
-  const [html, setHtml] = useState("")
+const InstagramEmbed = ({ shortcode }) => {
+  const [html, setHtml] = useState(null);
 
   useEffect(() => {
-    fetch(`https://www.instagram.com/oembed/?url=${encodeURIComponent(url)}&omitscript=true`)
-      .then((res) => res.json())
-      .then((data) => {
-        setHtml(data.html)
-      })
-      .catch((err) => {
-        console.error("Error loading Instagram post", err)
-      })
-  }, [url])
+    async function fetchInstagramEmbed() {
+      const response = await fetch(`https://api.instagram.com/oembed/?url=http://instagr.am/p/${shortcode}/`);
+      const data = await response.json();
+      setHtml(data.html);
+    }
 
-  return <div dangerouslySetInnerHTML={{ __html: html }} />
-}
+    if (shortcode) {
+      fetchInstagramEmbed();
+    }
+  }, [shortcode]);
+
+  if (!html) {
+    return <div>Loading...</div>;
+  }
+
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+};
+
+export default InstagramEmbed;

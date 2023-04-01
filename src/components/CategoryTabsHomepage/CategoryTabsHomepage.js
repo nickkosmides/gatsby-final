@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react"
 import { useQuery, gql } from "@apollo/client"
 import { graphql } from 'gatsby';
 import { formatDistance, parseISO, format,  formatDistanceToNow  } from 'date-fns';
+import {PopularPosts} from '../PopularPosts/index';
 const ALL_POSTS_QUERY = gql`
 query AllPosts($categoryName: String!) {
   posts(where: {categoryName: $categoryName}) {
@@ -150,7 +151,7 @@ if (data) {
  
   return (
     <div className="container px-4 py-20">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
     <div className="lg:col-span-8 col-span-12">
       <div className=" mb-20">
       <div className=" bg-white mx-auto  overflow-x-auto">
@@ -248,18 +249,18 @@ if (data) {
 
 </div>)) : (
   posts && (<div class="bg-gray-100 pb-10  ">
-  <article className="">
-<div class="w-full relative  ">
+  <article className="mb-10">
+<div class="w-full relative ">
  
   <div className="img-overlay   ">
     <img src={posts[0].featuredImage.node.sourceUrl} alt="image" class="h-auto max-h-[600px] w-full object-cover" />
   </div>
 </div>
-<h1 class=" text-xl font-bold text-black  "><a href={getFullCategoryPathWithPostSlug(getFullCategoryPathSSR(posts[0].categories.nodes),posts[0])}>{posts[0].title}</a></h1>
-
-<div className="flex space-x-5">
-<div className="text-gray-500 uppercase">posted by {posts[0].author.node.name}</div>
-<div className="text-gray-500">{ formatDistanceToNow (new Date(posts[0].date), 'MMMM dd, yyyy')} ago</div>
+<h1 class=" text-2xl font-bold text-black  p-3"><a href={getFullCategoryPathWithPostSlug(getFullCategoryPathSSR(posts[0].categories.nodes),posts[0])}>{posts[0].title}</a></h1>
+<div className="p-3" dangerouslySetInnerHTML={{ __html: posts[0].excerpt }} />
+<div className="flex space-x-5 p-3">
+<div className="text-gray-500 uppercase text-sm">posted by {posts[0].author.node.name}</div>
+<div className="text-gray-500 text-sm">{ formatDistanceToNow (new Date(posts[0].date), 'MMMM dd, yyyy')} ago</div>
 </div>
 </article>
 
@@ -273,12 +274,12 @@ if (data) {
   </div>
   
 </div>
-<div className="flex w-full sm:w-8/12 flex-col space-y-4 px-2">
+<div className="flex w-full sm:w-8/12 flex-col space-y-4 px-4 py-1">
 <h1 class=" text-xl font-bold text-black  "><a href={getFullCategoryPathWithPostSlug(getFullCategoryPathSSR(post.categories.nodes),post)}>{post.title}</a></h1>
-<div dangerouslySetInnerHTML={{ __html: post.excerpt.slice(0,150) }} />
+<div dangerouslySetInnerHTML={{ __html: post.excerpt }} />
 <div className="flex space-x-5">
-<div className="text-gray-500 uppercase">posted by {post.author.node.name}</div>
-<div className="text-gray-500">{ formatDistanceToNow (new Date(post.date), 'MMMM dd, yyyy')} ago</div>
+<div className="text-gray-500 text-sm uppercase">posted by {post.author.node.name}</div>
+<div className="text-gray-500 text-sm">{ formatDistanceToNow (new Date(post.date), 'MMMM dd, yyyy')} ago</div>
 </div>
 </div>
 
@@ -289,8 +290,9 @@ if (data) {
 </div>))
 }
 </div>
-<div className="col-span-12 lg:col-span-4 bg-red-500">
-asd
+<div className="col-span-12 lg:col-span-4 ">
+  <div className="flex items-center mb-5 space-x-3"><div className="h-8 w-8 bg-primary"></div><h2 className="text-4xl font-bold navbar-font-family   ">Popular</h2></div>
+<PopularPosts/>
 </div>
     </div>
     </div>

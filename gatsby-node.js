@@ -41,29 +41,99 @@ exports.createPages = async ({actions, graphql}) => {
     
   })
 
-  
-  // const allPages = data.allWpPage.nodes
-  // for(let i = 0; i < allPages.length; i++) {
-  //   const page  = allPages[i];
-  //   let blocks = page.blocks;
 
-  //   blocks = assignIds(blocks);
-  //   blocks = await assignGatsbyImage({
-  //     blocks,
-  //     graphql,
-  //     coreMediaText: true,
-  //     coreImage: true,
-  //     coreCover: true,
-  //   });
-  //   createPage({
-  //     path: page.uri,
-  //     component: pageTemplate,
-  //     context: {
-  //       databaseId: page.databaseId,
-  //       blocks,
-  //     }
-  //   });
-  // }
+  // Add this code to gatsby-node.js
+// createPage({
+//   path: '/search',
+//   component: path.resolve('src/templates/search.js'),
+//   context: {
+//     currentPage: 1,
+//     totalPages: 1,
+//   },
+// });
+//   const searchGraph = await graphql(`
+//   {
+//     allWpPost {
+      
+//       nodes {
+//         id
+//         uri
+//         date
+//         slug
+//       title
+//       excerpt
+//         author {
+//           node {
+//             name
+//             slug
+//           }
+//         }
+//         categories {
+//           nodes {
+//             id
+//             name
+//             slug
+//             parentId
+//             wpParent {
+//               node {
+//                 id
+//                 name
+//                 slug
+//               }
+//             }
+//           }
+//         }
+//           featuredImage {
+//             node {
+//               sourceUrl
+//             }
+//           }
+//       }
+//     }
+//   }
+// `);
+
+// // Determine the number of pages needed
+// const allPosts = searchGraph.data.allWpPost.nodes;
+// const postsPerPageSearch = 10;
+// const totalPages = Math.ceil(allPosts.length / postsPerPageSearch);
+
+// // Create search pages with pagination
+// for (let i = 1; i <= totalPages; i++) {
+//   createPage({
+//     path: i === 1 ? `/search` : `/search/page/${i}`,
+//     component: path.resolve('src/templates/search.js'),
+//     context: {
+//       currentPage: i,
+//       totalPages: totalPages,
+//     },
+//   });
+// }
+
+
+  
+  const allPages = data.allWpPage.nodes
+  for(let i = 0; i < allPages.length; i++) {
+    const page  = allPages[i];
+    let blocks = page.blocks;
+
+    blocks = assignIds(blocks);
+    blocks = await assignGatsbyImage({
+      blocks,
+      graphql,
+      coreMediaText: true,
+      coreImage: true,
+      coreCover: true,
+    });
+    createPage({
+      path: page.uri,
+      component: pageTemplate,
+      context: {
+        databaseId: page.databaseId,
+        blocks,
+      }
+    });
+  }
 
 //   const result = await graphql(`
 //   query {
@@ -176,7 +246,7 @@ const categoriesgraph = await graphql(`
   }
 
   const categories = categoriesgraph.data.allWpCategory.nodes;
-  const postsPerPage = 2;
+  const postsPerPage = 7;
 
   // Create a new page for each category
   categories.forEach((category) => {
@@ -268,7 +338,7 @@ if (tagsGraphQL.errors) {
   throw tagsGraphQL.errors;
 }
 
-const postsPerPageTags = 2; // Set the number of posts per page
+const postsPerPageTags = 7; // Set the number of posts per page
 const tags = tagsGraphQL.data.allWpTag.nodes;
 
 tags.forEach((tag) => {
@@ -287,25 +357,90 @@ tags.forEach((tag) => {
   });
 });
 
+// Query all tags from WordPress
+const authorGraphQL = await graphql(`
+query {
+  allWpPost {
+    nodes {
+      id
+      author {
+        node {
+          id
+          name
+          slug
+        }
+      }
+    }
+  }
+}
+`);
+
+
+if (authorGraphQL.errors) {
+  throw authorGraphQL.errors;
+}
+
+const countPostsByAuthor = (posts) => {
+  const counts = {};
+
+  posts.forEach(({ author }) => {
+    const { node: authorNode } = author;
+    if (!counts[authorNode.id]) {
+      counts[authorNode.id] = {
+        ...authorNode,
+        count: 0,
+      };
+    }
+    counts[authorNode.id].count += 1;
+  });
+
+  return Object.values(counts);
+};
+
+
+const authors = countPostsByAuthor(authorGraphQL.data.allWpPost.nodes);
+
+
+const postsPerPageAuthor = 7; // Set the number of posts per page
+
+
+authors.forEach((author) => {
+  const numPages = Math.ceil(author.count / postsPerPageAuthor);
+
+  Array.from({ length: numPages }).forEach((_, i) => {
+    createPage({
+      path: i === 0 ? `/author/${author.slug}` : `/author/${author.slug}/page/${i + 1}`,
+      component: path.resolve("./src/templates/author.js"),
+      context: {
+        slug: author.slug,
+        limit: postsPerPageAuthor,
+        skip: i * postsPerPageAuthor,
+        offset: i * postsPerPageTags
+      },
+    });
+  });
+});
+
+
   try {
     fs.writeFileSync("./public/themeStylesheet.css", data.wp.themeStylesheet);
   }catch(e) {
 
   }
   // const allPages = [...data.allWpPage.nodes, ...data.allWpCar.nodes];
-  for(let i = 0; i < data.allWpPage.nodes.length; i++) {
-    const page  = data.allWpPage.nodes[i];
-    let blocks = page.blocks;
+  // for(let i = 0; i < data.allWpPage.nodes.length; i++) {
+  //   const page  = data.allWpPage.nodes[i];
+  //   let blocks = page.blocks;
 
-    blocks = assignIds(blocks);
-    blocks = await assignGatsbyImage({
-      blocks,
-      graphql,
-      coreMediaText: true,
-      coreImage: true,
-      coreCover: true,
-    });
-  }
+  //   blocks = assignIds(blocks);
+  //   blocks = await assignGatsbyImage({
+  //     blocks,
+  //     graphql,
+  //     coreMediaText: true,
+  //     coreImage: true,
+  //     coreCover: true,
+  //   });
+  // }
 
   const article = await graphql(`
   {

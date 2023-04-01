@@ -12,11 +12,29 @@ module.exports = {
   },
   plugins: [
     {
+    resolve: `gatsby-transformer-remark`,
+    options: {
+      plugins: [
+        {
+          resolve: `gatsby-remark-instagram-embed`,
+          options: {
+            width: 320,
+            height: 320,
+          },
+        },
+      ],
+    },
+  },
+    {
       resolve: `gatsby-plugin-google-gtag`,
       options: {
         trackingIds: [
           "G-NR7DHTPH59",
         ],
+        pluginConfig: {
+          head: false,
+          respectDNT: true,
+        },
       },
     },
     
@@ -37,18 +55,9 @@ module.exports = {
     {
       resolve: `gatsby-source-wordpress`,
       options: {
-        includedRoutes: [
-          "**/article/",
-        ],
+       
         url: process.env.WPGRAPHQL_URL,
-        permalinks: {
-          // Use the post slug as is (i.e. in Greek characters)
-          // and ensure that non-latin characters are properly encoded
-          // as per the RFC 3986 standard.
-          // For example, "Δοκιμή" will become "%CE%94%CE%BF%CE%BA%CE%B9%CE%BC%CE%AE".
-          format: `/%slug%/`,
-          encode: true,
-        },
+       
       },
     },
     {

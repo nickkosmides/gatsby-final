@@ -75,7 +75,7 @@ const firstFivePosts = posts.slice(0, 5);
       })}
     </div> */}
     <div className="">
-    <div className="first-grid grid grid-cols-2 gap-1 xl:grid-cols-4">
+    <div className="first-grid grid grid-cols-2 gap-4 xl:grid-cols-4">
       {firstFivePosts.map((post, index) => {
         const categoryPath = getFullCategoryPath(post.categories.nodes);
         
@@ -87,7 +87,7 @@ const firstFivePosts = posts.slice(0, 5);
           );
         } else if (index === 1  ) {
           return (
-            <div key={post.id} className="col-span-2 sm:col-span-1 gap-1 grid grid-rows-2 h-[500px]">
+            <div key={post.id} className="col-span-2 sm:col-span-1 gap-4 grid grid-rows-2 h-[500px]">
               <GridItem post={firstFivePosts[1]} categoryPath={getFullCategoryPath(firstFivePosts[1].categories.nodes)} />
               <GridItem post={firstFivePosts[2]} categoryPath={getFullCategoryPath(firstFivePosts[2].categories.nodes)} />
             </div>
@@ -95,7 +95,7 @@ const firstFivePosts = posts.slice(0, 5);
         }  
         else if (index > 3 ) {
           return (
-            <div key={post.id} className="col-span-2 sm:col-span-1 gap-1 grid grid-rows-2 h-[500px]">
+            <div key={post.id} className="col-span-2 sm:col-span-1 gap-4 grid grid-rows-2 h-[500px]">
               <GridItem post={firstFivePosts[3]} categoryPath={getFullCategoryPath(firstFivePosts[3].categories.nodes)} />
               <GridItem post={firstFivePosts[4]} categoryPath={getFullCategoryPath(firstFivePosts[4].categories.nodes)} />
             </div>
@@ -104,6 +104,9 @@ const firstFivePosts = posts.slice(0, 5);
       })}
     </div>
     </div>
+  
+
+
 
 
       {/* <div class="first-grid grid grid-cols-2 gap-1 xl:grid-cols-4 ">

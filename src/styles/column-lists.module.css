@@ -1,0 +1,9 @@
+.listColumn1 {
+  /* custom styles for the list in the first column */
+  color: red;
+}
+
+.listColumn2 {
+  /* custom styles for the list in the second column */
+  color: blue;
+}

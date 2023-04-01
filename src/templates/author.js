@@ -1,73 +1,18 @@
-import React,{useState} from "react";
-import { graphql } from "gatsby";
+import React,{useState} from 'react';
+import { graphql } from 'gatsby';
 import {Layout} from "../components/Layout";
 import { formatDistanceToNow  } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare, faCoffee, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { PopularPosts } from "../components";
-export const query = graphql`
-  query($slug: String!, $limit: Int!, $offset: Int!) {
-    wpTag(slug: { eq: $slug }) {
-      name
-      slug
-      posts {
-        nodes {
-          id
-          title
-          slug
-        }
-      }
-      count
-    }
-    allWpPost(
-      filter: {tags: { nodes: {elemMatch: {slug: {eq: $slug}}}}},
-      limit: $limit,
-      skip: $offset
-    ){
-      nodes {
-        id
-        uri
-        date
-        slug
-      title
-      excerpt
-      author {
-        node {
-          name
-          slug
-        }
-      }
-        featuredImage {
-          node {
-            sourceUrl
-          }
-        }
-        categories {
-          nodes {
-            id
-            name
-            slug
-            parentId
-            wpParent {
-              node {
-                id
-                name
-                slug
-              }
-            }
-          }
-        }
-      
-      }
-      totalCount
-    }
-  }
-`;
-
-const TagPage = ({ data, pageContext }) => {
-  const tag = data.wpTag;
+import { PopularPosts } from '../components';
+const AuthorPage = ({ data: author, pageContext }) => {
   const [postsPerPage, setPostsPerPage] = useState(7);
   const { currentPage, offset } = pageContext;
+console.log(author)
+  const authorName = author.allWpPost.nodes[0]?.author.node.name;
+  const authorSlug = author.allWpPost.nodes[0]?.author.node.slug;
+  const posts = author.allWpPost.nodes;
+  console.log(posts,'asd')
   const getFullCategoryPathWithPostSlug = (categoryPath, post) => {
     return  `/${categoryPath}/${post.slug}`;
   }
@@ -97,33 +42,36 @@ const TagPage = ({ data, pageContext }) => {
   
     return longestPath.join("/");
   };
-  const getFullTagPathBread = (tag) => {
-    return [{ name: tag.name, slug: `tag/${tag.slug}` }];
+  const getFullAuthorPathBread = (authName, authSlug) => {
+    console.log(authSlug)
+    return [{ name: authName, slug: `author/${authSlug}` }];
   };
   
-  const tagBread = { name: tag.name, slug: tag.slug }; // Replace this with the actual tag data.
-  const tagPath = getFullTagPathBread(tagBread);
-  
-  const breadcrumbs = tagPath.map((tagItem, index) => {
-    const parentTagPath = tagPath.slice(0, index + 1).map(tag => tag.slug).join("/");
-  
+  const authorBread = { name: authorName, slug: authorSlug }; // Replace this with the actual author data.
+  const authorPath = getFullAuthorPathBread(authorName,authorSlug);
+  console.log(authorPath,'nikos')
+  console.log(authorBread,'john')
+  const breadcrumbs = authorPath.map((authorItem, index) => {
+    const parentAuthorPath = authorPath.slice(0, index + 1).map(author => author.slug).join("/");
     return (
-      <li className="flex space-x-3 items-center" key={parentTagPath}>
+      <li className="flex space-x-3 items-center" key={parentAuthorPath}>
         <FontAwesomeIcon className="text-base" icon={faChevronRight} />
-        <a href={`/${parentTagPath}`}>{tagItem.name}</a>
+        <a href={`/${parentAuthorPath}`}>{authorItem.name}</a>
       </li>
     );
   });
-  const indexOfLastPost = currentPage * postsPerPage;
+
+  console.log(breadcrumbs,'asd')
+  // Logic for displaying posts
+const indexOfLastPost = currentPage * postsPerPage;
 const indexOfFirstPost = indexOfLastPost - postsPerPage;
-// Only show first 2 posts
- 
+const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost).slice(0, 2); // Only show first 2 posts
+
 
   // Logic for displaying page numbers
   const pageNumbers = [];
-  // console.log(posts.totalCount,'total')
-  console.log(data.allWpPost.totalCount,'asdasd')
-  for (let i = 1; i <= Math.ceil(data.allWpPost.totalCount / postsPerPage); i++) {
+  console.log(posts.totalCount,'total')
+  for (let i = 1; i <= Math.ceil(author.allWpPost.totalCount / postsPerPage); i++) {
     pageNumbers.push(i);
   }
 console.log(currentPage,'pagetest')
@@ -142,8 +90,8 @@ console.log(currentPage,'pagetest')
           } page-item cursor-pointer h-10 w-10 flex justify-center items-center `}
           href={
             number === 1
-              ? `/tag/${tag.slug}/`
-              : `/tag/${tag.slug}/page/${number}`
+              ? `/author/${authorSlug}/`
+              : `/author/${authorSlug}/page/${number}`
           }
         >
           {number}
@@ -152,18 +100,17 @@ console.log(currentPage,'pagetest')
     );
   });
   return (
-    <div>
-     <Layout>
+    <Layout>
     <div className="bg-gray-custom py-20">
       <div className="container px-4">
-      <div className="text-5xl mb-20 text-center navbar-font-family">Articles tagged under "{tag.name}"</div>
+        <div className="text-5xl mb-20 text-center navbar-font-family">Articles by {authorName}</div>
       <div className="grid grid-cols-12 gap-6">
       <div className="lg:col-span-9 col-span-12">
     <ul className="breadcrumb bg-gray-300 text-black shadow-md navbar-font-family p-4 mb-5 flex text-base items-center space-x-3"><li className=""><a href="/">Home</a> </li>{breadcrumbs}</ul>
 
        
        <div className="flex flex-col space-y-10">
-     { data.allWpPost.nodes.map((post) => (
+     { posts.map((post) => (
            <div key={post.id} class="bg-gray-100 flex flex-wrap w-full">
            <div class="w-full md:w-4/12 relative  ">
            {/* <pre>{JSON.stringify(post.categories.nodes)}</pre>
@@ -201,8 +148,56 @@ console.log(currentPage,'pagetest')
         </div>
     
   </Layout>
-    </div>
   );
 };
 
-export default TagPage;
+export const query = graphql`
+query MyQuery ($slug: String!, $limit: Int!, $offset: Int!)  {
+  allWpPost(
+    filter: {author: { node: {slug: {eq: $slug}}}},
+    limit: $limit,
+    skip: $offset
+) {
+    
+    nodes {
+      id
+    
+        uri
+        date
+        slug
+      title
+      excerpt
+      author {
+        node {
+          name
+          slug
+        }
+      }
+      featuredImage {
+        node {
+          sourceUrl
+        }
+      }
+      categories {
+        nodes {
+          id
+          name
+          slug
+          parentId
+          wpParent {
+            node {
+              id
+              name
+              slug
+            }
+          }
+        }
+      }
+     
+    }
+     totalCount
+  }
+}
+`;
+
+export default AuthorPage;

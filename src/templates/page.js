@@ -8,9 +8,9 @@ import  {graphql} from 'gatsby';
 const page = (props) => {
   console.log("Page Props",props);
   return (
-    <Layout>
-     
-    <div>
+    <Layout >
+     <div className="bg-gray-custom py-20">
+    <div className="container ">
   <BlockRendererProvider allBlocks={props.pageContext.blocks} 
   renderComponent={BlockRendererComponents}
   siteDomain={process.env.GATSBY_WP_URL}
@@ -19,6 +19,7 @@ const page = (props) => {
     return <Link key={index} to={internalHref} className={className}>{children}</Link>;
   }}
   />
+  </div>
   </div>
 
    </Layout>

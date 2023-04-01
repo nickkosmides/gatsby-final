@@ -1,10 +1,14 @@
 import React from "react";
-
+import { fromGlobalId } from 'graphql-relay';
 import { graphql } from "gatsby";
-
+import { useQuery, gql, useMutation } from "@apollo/client";
 import { Layout } from "../components/Layout";
 import { BlockRenderer,getStyles, getClasses } from "@webdeveducation/wp-block-tools";
 import { useEffect } from "react";
+import { PopularPosts } from "../components";
+import { formatDistanceToNow  } from 'date-fns';
+import { Link } from "gatsby";
+
 import {
   FacebookShareCount,
   HatenaShareCount,
@@ -16,7 +20,14 @@ import {
   FacebookShareButton
 } from "react-share";
 
-
+const INCREMENT_POST_VIEWS = gql`
+  mutation IncrementPostViews($postId: ID!) {
+    incrementPostViews(input: { postId: $postId }) {
+      success
+      message
+    }
+  }
+`;
 const Post = ({ data ,pageContext}) => {
   useEffect(() => {
     // Manually reload Instagram script on component update
@@ -24,23 +35,51 @@ const Post = ({ data ,pageContext}) => {
       window.instgrm.Embeds.process()
     }
   }, [data])
+
+   
   console.log('asd', pageContext.blocks)
   const post = data.wpPost;
-  console.log('asasd',getClasses(post.blocks[0]))
-  // const blockStyles = getStyles(post.content);
-  // console.log(blockStyles);
+
+  const [incrementPostViews, { data: mutationData, error: mutationError }] = useMutation(INCREMENT_POST_VIEWS);
+
+  useEffect(() => {
+    const incrementViews = async () => {
+      try {
+        console.log("decodedPostId:", post.id);
+      const { id: numericId } = fromGlobalId(post.id);
+      console.log("numericId:", numericId);
+        console.log("decodedPostId:", post.id);
+        await incrementPostViews({ variables: { postId: numericId } });
+      } catch (error) {
+        console.error("Failed to increment post views:", error);
+      }
+    };
+
+    incrementViews();
+  }, [post.id, incrementPostViews]);
+
+  console.log("Mutation data:", mutationData);
+  console.log("Mutation error:", mutationError);
 
   return (
     <Layout>
       <div className="bg-gray-custom py-20 relative">
-        <div className="absolute top-0 z-10 min-w-full opacity-20">
+        <div className="absolute top-0 z-0 min-w-full opacity-20">
           <div className="relative  ">
           <img className="object-cover h-full w-full" src={post.featuredImage.node.sourceUrl}/>
           <div class="absolute bottom-0 w-full h-64 bg-gradient-to-t from-gray-custom to-transparent opacity-100"></div>
           </div></div>
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 bg-white py-10">
+          <div className="grid grid-cols-12 gap-10 container relative z-20">
+          <div className="lg:col-span-9 col-span-12">
+    <div className=" relative z-20 mx-auto bg-white p-10">
       <h1 className="text-4xl font-bold my-4">{post.title}</h1>
-      <div className="flex mb-4">
+      <p dangerouslySetInnerHTML={{ __html: post.excerpt }}></p> 
+      <div className="flex space-x-5 mt-4">
+                     <div className="text-gray-500 text-sm uppercase">by <a className="font-bold hover:text-primary" href={`/author/${post.author.node.slug}`}>{post.author.node.name}</a></div>
+                    
+                     <div className="text-gray-500 text-sm uppercase">PUBLISHED { formatDistanceToNow (new Date(post.date), 'MMMM dd, yyyy')} ago</div>
+                     </div>
+      <div className="flex my-5">
         <FacebookShareButton url={post.uri} className="mr-2">
           <span className="sr-only">Share on Facebook</span>
           <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -73,7 +112,7 @@ const Post = ({ data ,pageContext}) => {
           {(count) => <span className="text-sm">{count} shares</span>}
         </VKShareCount> */}
       </div>
-      <div>
+      <div className="article">
       {/* <div className={`text-lg ${post.postClass}`} dangerouslySetInnerHTML={{ __html: post.content }} /> */}
       {post.blocks.map((block, index) => {
         
@@ -85,6 +124,22 @@ const Post = ({ data ,pageContext}) => {
        
       {/* ))} */}
     </div>
+    <div className="flex flex-wrap items-center space-x-3 mt-6 font-bold">
+        <h3 className="">Tags:</h3>
+        <ul className="flex space-x-3 flex-wrap">
+          {post.tags.nodes.map((tag) => (
+            <li className="bg-gray-300 px-3 py-1" key={tag.slug}>
+              <Link to={`/tag/${tag.slug}`}>{tag.name}</Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+    </div>
+    <div className="lg:col-span-3 col-span-12 ">
+          <div className=" flex items-center mb-5 space-x-3"><div className="h-8 w-8 bg-primary"></div><h2 className="text-4xl font-bold navbar-font-family   ">Popular</h2></div>
+<PopularPosts/>
+          </div>
     </div>
     </div>
     </Layout>
@@ -101,10 +156,24 @@ export const query = graphql`
       content
       uri
       blocks
-     
+      date
+     excerpt
+     author{
+      node{
+        name
+        slug
+      
+      }
+     }
       featuredImage {
         node {
           sourceUrl
+        }
+      }
+      tags {
+        nodes {
+          name
+          slug
         }
       }
     }

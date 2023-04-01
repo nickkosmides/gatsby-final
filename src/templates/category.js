@@ -3,7 +3,8 @@ import { graphql } from "gatsby";
 import {Layout} from "../components/Layout";
 import { formatDistanceToNow  } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckSquare, faCoffee, faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { PopularPosts } from "../components";
+import { faCheckSquare, faCoffee, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 const getParentCategories = (category) => {
   if (!category.wpParent) {
     return [category.slug];
@@ -29,7 +30,7 @@ export default ({data, pageContext }) => {
   console.log(categoryUrl)
   // const [currentPage, setCurrentPage] = useState(1);
   console.log(pageContext,'count')
-  const [postsPerPage, setPostsPerPage] = useState(2);
+  const [postsPerPage, setPostsPerPage] = useState(7);
   const [loading, setLoading] = useState(true)
   console.log(pageContext,'testpage2')
   const { currentPage, offset } = pageContext;
@@ -90,7 +91,7 @@ console.log(currentPage,'pagetest')
       >
         <a
           className={` ${
-            offset/postsPerPage + 1 === number ? "bg-white text-primary shadow-lg" : 'bg-primary text-white'
+            offset/postsPerPage + 1 === number ? "bg-primary text-white shadow-lg" : 'shadow-md bg-gray-300 text-black'
           } page-item cursor-pointer h-10 w-10 flex justify-center items-center `}
           href={
             number === 1
@@ -223,6 +224,8 @@ console.log(currentPage,'pagetest')
     acc.push(breadcrumb);
     return acc;
   }, []);
+
+  
  
   return (
     <>
@@ -235,9 +238,9 @@ console.log(currentPage,'pagetest')
           <div className="bg-gray-custom py-20">
             <div className="container px-4">
               <div className="text-5xl mb-20 text-center navbar-font-family">{wpCategory.name}</div>
-            <div className="grid grid-cols-12 gap-6">
+            <div className="grid grid-cols-12 gap-10 ">
             <div className="lg:col-span-9 col-span-12">
-          <ul className="breadcrumb bg-white text-black shadow-md navbar-font-family p-4 mb-5 flex text-base items-center space-x-3"><li className=""><a href="/">Home</a> </li>{breadcrumbs}</ul>
+          <ul className="breadcrumb bg-gray-300 text-black shadow-md navbar-font-family p-4 mb-5 flex text-base items-center space-x-3"><li className=""><a href="/">Home</a> </li>{breadcrumbs}</ul>
 
              
              <div className="flex flex-col space-y-10">
@@ -256,7 +259,7 @@ console.log(currentPage,'pagetest')
                      <div dangerouslySetInnerHTML={{ __html: post.excerpt }} />
                     
                      <div className="flex space-x-5">
-                     <div className="text-gray-500 text-sm uppercase">posted by {post.author.node.name}</div>
+                     <div className="text-gray-500 text-sm uppercase">posted by <a className="font-bold hover:text-primary" href={`/author/${post.author.node.slug}`}>{post.author.node.name}</a></div>
                     
                      <div className="text-gray-500 text-sm">{ formatDistanceToNow (new Date(post.date), 'MMMM dd, yyyy')} ago</div>
                      </div>
@@ -269,7 +272,10 @@ console.log(currentPage,'pagetest')
           {renderPageNumbers}
         </ul>
           </div>
-          <div className="lg:col-span-3 col-span-12 bg-red-500 h-96"></div>
+          <div className="lg:col-span-3 col-span-12  ">
+          <div className="flex items-center mb-5 space-x-3"><div className="h-8 w-8 bg-primary"></div><h2 className="text-4xl font-bold navbar-font-family   ">Popular</h2></div>
+<PopularPosts/>
+          </div>
             </div>
           
           </div>
@@ -317,6 +323,7 @@ query($slug: String!, $limit: Int!, $offset: Int!) {
       author {
         node {
           name
+          slug
         }
       }
         featuredImage {

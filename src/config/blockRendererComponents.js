@@ -1,14 +1,14 @@
 import React from "react";
 import { BlockRenderer,getStyles, getClasses } from "@webdeveducation/wp-block-tools";
-
+import { CustomBlockRenderer } from "../components/CustomBlockRenderer";
 import { MediaText,Cover, Gallery } from "../components/index";
 import { GatsbyImage } from "gatsby-plugin-image";
-
+import {List} from '../components/List';
 
 import numeral from "numeral";
+import columnListStyles from '../styles/column-lists.module.css';
 
-
-export const BlockRendererComponents = (block) => {
+export const BlockRendererComponents = (block, columnIndex) => {
   console.log('asd')
   switch(block.name){
 case "core/media-text": {
@@ -38,6 +38,26 @@ case "core/gallery": {
   </Gallery>
 }
 
+case "core/columns": {
+  const columns = block.innerBlocks.map((columnBlock, index) => (
+    <CustomBlockRenderer key={columnBlock.id} blocks={columnBlock.innerBlocks} columnIndex={index + 1} />
+  ));
+
+  return <div className="columns flex space-x-3 items-center !mb-1">{columns}</div>;
+}
+case "core/list": {
+  console.log(columnIndex,'test')
+  const listClassName = columnIndex === 1 ? "text-black text-2xl font-bold" : columnIndex === 2 ? "text-gray-500" : "text-gray-500";
+  return ( 
+    <List
+    key={block.id}
+    className={`${getClasses(block)} ${listClassName}`}
+    style={getStyles(block)}
+  >
+    <BlockRenderer blocks={block.innerBlocks} columnIndex={columnIndex} />
+  </List>
+  );
+}
 default:
   return null
   }

@@ -8,23 +8,22 @@ export const Footer = ({ children }) => {
     <div className="container mx-auto px-4   py-10 ">
       <div className="flex flex-col items-center space-y-4">
       <div className="pixel  text-primary pb-10">Gamebit</div>
-      <p className="navbar-font-family text-4xl">Find us On</p>
+      <p className="font-bold text-4xl pb-4">Βρείτε μας</p>
       <div className="flex justify-center space-x-6">
-    <FontAwesomeIcon className="text-2xl"  icon={faFacebook} />
-    <FontAwesomeIcon className="text-2xl" icon={faInstagram} />
-    <FontAwesomeIcon className="text-2xl" icon={faYoutube} />
-    <FontAwesomeIcon className="text-2xl" icon={faTwitter} />
+    <FontAwesomeIcon className="text-3xl hover:text-primary cursor-pointer"  icon={faFacebook} />
+    <FontAwesomeIcon className="text-3xl hover:text-primary cursor-pointer" icon={faInstagram} />
+    <FontAwesomeIcon className="text-3xl hover:text-primary cursor-pointer" icon={faYoutube} />
+    <FontAwesomeIcon className="text-3xl hover:text-primary cursor-pointer" icon={faTwitter} />
     </div>
     
 
-    <div className="flex navbar-font-family space-x-2 pt-10">
-      <div>About</div>
+    <div className="flex  font-bold space-x-2 pt-10">
+      <div>Όροι Χρήσης & Πολιτική Απορρήτου</div>
       <div>|</div>
-      <div>Advertise</div>
+      <div>Επικοινωνία</div>
       <div>|</div>
-      <div>About</div>
-      <div>|</div>
-      <div>Advertise</div>
+      <div>Διαφημιστείτε</div>
+
     </div>
     
     <div className="text-sm text-gray-300 ">ⓒ Gamebit 2023</div>
