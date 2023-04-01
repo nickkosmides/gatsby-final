@@ -29,7 +29,7 @@ module.exports = {
       resolve: `gatsby-plugin-google-gtag`,
       options: {
         trackingIds: [
-          "G-NR7DHTPH59",
+          process.env.GATSBY_GTAG_TRACKING_ID,
         ],
         pluginConfig: {
           head: false,
